@@ -1,0 +1,78 @@
+name: Build and Release KMP Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 17
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Build iOS Framework
+        run: ./gradlew :shared:linkReleaseFrameworkIos
+
+      - name: Package XCFramework
+        run: ./gradlew :shared:packageReleaseXCFramework
+
+      - name: Prepare Swift Package
+        run: |
+          mkdir -p SwiftPackage/Sources/YourLibrary
+          cp -R build/xcframeworks/release/shared.xcframework SwiftPackage/Sources/YourLibrary/
+          echo '
+          // swift-tools-version:5.3
+          import PackageDescription
+
+          let package = Package(
+              name: "YourLibrary",
+              platforms: [
+                  .iOS(.v10)
+              ],
+              products: [
+                  .library(
+                      name: "YourLibrary",
+                      targets: ["YourLibrary"]),
+              ],
+              targets: [
+                  .binaryTarget(
+                      name: "YourLibrary",
+                      path: "./Sources/YourLibrary/shared.xcframework")
+              ]
+          )
+          ' > SwiftPackage/Package.swift
+
+      - name: Commit and Push Swift Package
+        run: |
+          cd SwiftPackage
+          git init
+          git remote add origin https://github.com/yourusername/your-swift-package-repo.git
+          git add .
+          git commit -m "Release new version"
+          git tag v$(date +%Y%m%d%H%M%S)
+          git push --set-upstream origin master --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
