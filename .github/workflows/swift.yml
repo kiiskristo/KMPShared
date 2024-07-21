@@ -30,17 +30,20 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Set JAVA_HOME
-        run: echo "JAVA_HOME=\$JAVA_HOME" >> $GITHUB_ENV
-
       - name: Build with Gradle
         run: ./gradlew build
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
 
       - name: Build iOS Framework
         run: ./gradlew :shared:linkReleaseFrameworkIos
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
 
       - name: Package XCFramework
         run: ./gradlew :shared:packageReleaseXCFramework
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
 
       - name: Prepare Swift Package
         run: |
