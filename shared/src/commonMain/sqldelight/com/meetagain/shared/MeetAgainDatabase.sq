@@ -1,0 +1,32 @@
+CREATE TABLE User (
+    id TEXT NOT NULL PRIMARY KEY,
+    username TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phoneNumber TEXT NOT NULL
+);
+
+CREATE TABLE Message (
+    id TEXT NOT NULL PRIMARY KEY,
+    senderId TEXT NOT NULL,
+    receiverId TEXT NOT NULL,
+    content TEXT NOT NULL,
+    timestamp TEXT NOT NULL
+);
+
+insertUser:
+INSERT INTO User(id, username, email, phoneNumber)
+VALUES (?, ?, ?, ?);
+
+selectUserById:
+SELECT *
+FROM User
+WHERE id = ?;
+
+insertMessage:
+INSERT INTO Message(id, senderId, receiverId, content, timestamp)
+VALUES (?, ?, ?, ?, ?);
+
+selectMessagesForUser:
+SELECT *
+FROM Message
+WHERE receiverId = ?;

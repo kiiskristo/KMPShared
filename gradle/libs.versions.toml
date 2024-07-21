@@ -1,0 +1,37 @@
+[versions]
+agp = "8.4.2"
+kotlin = "2.0.0"
+kotlinx-serialization = "1.7.1"
+coroutines = "1.8.1"
+koin = "3.5.3"
+kotlinx-datetime = "0.3.1"
+firebase = "1.13.0"
+firebase-android-auth = "23.0.0"
+firebase-android-firestore = "25.0.0"
+kmp-nativecoroutines = "1.0.0-ALPHA-32"
+ksp = "2.0.0-1.0.23"
+
+[libraries]
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-stdlib-common = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-common", version.ref = "kotlin" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kmp-nativecoroutines-core = { group = "com.rickclephas.kmp", name = "kmp-nativecoroutines-core", version.ref = "kmp-nativecoroutines" }
+kmp-nativecoroutines-annotations = { group = "com.rickclephas.kmp", name = "kmp-nativecoroutines-annotations", version.ref = "kmp-nativecoroutines" }
+kmp-nativecoroutines-processor = { group = "com.rickclephas.kmp", name = "kmp-nativecoroutines-ksp", version.ref = "kmp-nativecoroutines" }
+
+# Firebase dependencies
+firebase-auth = { group = "dev.gitlive", name = "firebase-auth", version.ref = "firebase" }
+firebase-firestore = { group = "dev.gitlive", name = "firebase-firestore", version.ref = "firebase" }
+
+# Firebase Android-specific dependencies
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebase-android-auth" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebase-android-firestore" }
+
+[plugins]
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
