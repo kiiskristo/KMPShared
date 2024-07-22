@@ -41,8 +41,6 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                implementation(libs.firebase.auth.ktx)
-                implementation(libs.firebase.firestore.ktx)
             }
         }
         val iosArm64Main by getting

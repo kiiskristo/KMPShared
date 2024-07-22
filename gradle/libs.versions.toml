@@ -6,8 +6,6 @@ coroutines = "1.8.1"
 koin = "3.5.3"
 kotlinx-datetime = "0.3.1"
 firebase = "1.13.0"
-firebase-android-auth = "23.0.0"
-firebase-android-firestore = "25.0.0"
 kmp-nativecoroutines = "1.0.0-ALPHA-32"
 ksp = "2.0.0-1.0.23"
 
@@ -26,10 +24,6 @@ kmp-nativecoroutines-processor = { group = "com.rickclephas.kmp", name = "kmp-na
 # Firebase dependencies
 firebase-auth = { group = "dev.gitlive", name = "firebase-auth", version.ref = "firebase" }
 firebase-firestore = { group = "dev.gitlive", name = "firebase-firestore", version.ref = "firebase" }
-
-# Firebase Android-specific dependencies
-firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebase-android-auth" }
-firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebase-android-firestore" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

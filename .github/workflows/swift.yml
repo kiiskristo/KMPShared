@@ -31,7 +31,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew assemble
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
 
