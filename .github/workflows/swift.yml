@@ -10,6 +10,7 @@ on:
 
 jobs:
   build:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -59,7 +60,20 @@ jobs:
           name: shared.xcframework
           path: ./shared/build/XCFrameworks/release/shared.xcframework.zip
 
-      - name: Echo Artifact URL and Checksum
+      - name: Update Package.swift
         run: |
-          echo "Artifact URL: ${{ steps.upload_artifact.outputs.artifact-url }}"
-          echo "Checksum: ${{ steps.checksum.outputs.checksum }}"
+          ARTIFACT_URL="${{ steps.upload_artifact.outputs.artifact-url }}"
+          CHECKSUM="${{ steps.checksum.outputs.checksum }}"
+          sed -i '' -e "s|url: \".*\"|url: \"$ARTIFACT_URL\"|" Package.swift
+          sed -i '' -e "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|" Package.swift
+        shell: bash
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add Package.swift
+          git commit -m "Update Package.swift with new artifact URL and checksum [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
