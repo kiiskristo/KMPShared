@@ -50,10 +50,18 @@ jobs:
         run: |
           swift package compute-checksum ./shared/build/XCFrameworks/release/shared.xcframework.zip > checksum.txt
           CHECKSUM=$(cat checksum.txt)
-          echo "::set-output name=checksum::$CHECKSUM"
+          echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
 
       - name: Publish to GitHub Packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: shared.xcframework
           path: ./shared/build/XCFrameworks/release/shared.xcframework.zip
+
+      - name: Get Artifact URL
+        run: |
+          ARTIFACT_ID=${{ steps.upload-xcframework.outputs.artifact-id }}
+          RUN_ID=${{ github.run_id }}
+          REPO=${{ github.repository }}
+          ARTIFACT_URL="https://github.com/$REPO/actions/runs/$RUN_ID/artifacts/$ARTIFACT_ID"
+          echo "artifact=$ARTIFACT_URL" >> $GITHUB_OUTPUT
