@@ -40,38 +40,20 @@ jobs:
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
 
-      - name: Prepare Swift Package
+      - name: Compress XCFramework
         run: |
-          mkdir -p SwiftPackage/Sources/MeetAgainShared
-          cp -R shared/build/XCFrameworks/release/shared.xcframework SwiftPackage/Sources/MeetAgainShared/
-          echo '
-          // swift-tools-version:5.3
-          import PackageDescription
+          cd ./shared/build/XCFrameworks/release
+          zip -r shared.xcframework.zip shared.xcframework
 
-          let package = Package(
-              name: "MeetAgainShared",
-              platforms: [
-                  .iOS(.v10)
-              ],
-              products: [
-                  .library(
-                      name: "MeetAgainShared",
-                      targets: ["MeetAgainShared"]),
-              ],
-              targets: [
-                  .binaryTarget(
-                      name: "MeetAgainShared",
-                      path: "./Sources/MeetAgainShared/shared.xcframework")
-              ]
-          )
-          ' > SwiftPackage/Package.swift
-
-      - name: Commit and Push Swift Package
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute checksum
+        id: checksum
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add SwiftPackage/
-          git commit -m "Release new version of Swift Package"
-          git push origin main
+          swift package compute-checksum ./shared/build/XCFrameworks/release/shared.xcframework.zip > checksum.txt
+          CHECKSUM=$(cat checksum.txt)
+          echo "::set-output name=checksum::$CHECKSUM"
+
+      - name: Publish to GitHub Packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: shared.xcframework
+          path: ./shared/build/XCFrameworks/release/shared.xcframework.zip
