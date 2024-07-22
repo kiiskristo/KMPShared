@@ -52,16 +52,19 @@ jobs:
           CHECKSUM=$(cat checksum.txt)
           echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
 
-      - name: Publish to GitHub Packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: shared.xcframework
-          path: ./shared/build/XCFrameworks/release/shared.xcframework.zip
-
-      - name: Get Artifact URL
+      - name: Upload artifact and capture log
+        id: upload_log
         run: |
-          ARTIFACT_ID=${{ steps.upload-xcframework.outputs.artifact-id }}
-          RUN_ID=${{ github.run_id }}
-          REPO=${{ github.repository }}
-          ARTIFACT_URL="https://github.com/$REPO/actions/runs/$RUN_ID/artifacts/$ARTIFACT_ID"
-          echo "artifact=$ARTIFACT_URL" >> $GITHUB_OUTPUT
+          output=$(mktemp)
+          actions/upload-artifact@v4 \
+            --name shared.xcframework \
+            --path ./shared/build/XCFrameworks/release/shared.xcframework.zip \
+            > $output
+          ARTIFACT_URL=$(grep -oP 'Artifact download URL: \K.*' $output)
+          echo "artifact-url=$ARTIFACT_URL" >> $GITHUB_OUTPUT
+
+      - name: Get Artifact URL and Checksum
+        run: |
+          ARTIFACT_URL=${{ steps.upload_log.outputs.artifact-url }}
+          echo "Artifact URL: $ARTIFACT_URL"
+          echo "Checksum: ${{ steps.checksum.outputs.checksum }}"
