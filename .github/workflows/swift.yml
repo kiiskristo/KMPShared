@@ -45,8 +45,17 @@ jobs:
     runs-on: macos-latest
     needs: build
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: 17
+
       - name: Build iOS Framework
-        run: ./gradlew :shared:assembleXCFramework
+        run: ./gradlew assembleXCFramework
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
 
