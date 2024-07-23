@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - development
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -39,9 +40,10 @@ jobs:
         run: ./gradlew assemble
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-  
+          GRADLE_OPTS: "-Dorg.gradle.workers.max=3"
+
   deploy:
-    if: github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, '[skip ci]') && startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, '[skip ci]')
     runs-on: macos-latest
     needs: build
     steps:
@@ -55,21 +57,42 @@ jobs:
           java-version: 17
 
       - name: Build iOS Framework
-        run: ./gradlew assembleXCFramework
+        run: ./gradlew :shared:assembleXCFramework
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          GRADLE_OPTS: "-Dorg.gradle.workers.max=3"
 
       - name: Compress XCFramework
         run: |
           cd ./shared/build/XCFrameworks/release
           zip -r shared.xcframework.zip shared.xcframework
 
+      - name: Upload artifact
+        id: upload_artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared.xcframework
+          path: ./shared/build/XCFrameworks/release/shared.xcframework.zip
+
+  create-release:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-latest
+    needs: [build, deploy]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-xcframework
+          path: ./shared/build/XCFrameworks/release
+
       - name: Compute checksum
         id: checksum
         run: |
-          swift package compute-checksum ./shared/build/XCFrameworks/release/shared.xcframework.zip > checksum.txt
-          CHECKSUM=$(cat checksum.txt)
-          echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
+          CHECKSUM=$(swift package compute-checksum ./shared/build/XCFrameworks/release/shared.xcframework.zip)
+          echo "checksum=$CHECKSUM" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         id: create_release
@@ -95,7 +118,7 @@ jobs:
       - name: Update Package.swift
         run: |
           RELEASE_URL="https://github.com/kiiskristo/KMPShared/releases/download/${{ github.ref }}/shared.xcframework.zip"
-          CHECKSUM="${{ steps.checksum.outputs.checksum }}"
+          CHECKSUM="${{ env.checksum }}"
           sed -i '' -e "s|url: \".*\"|url: \"$RELEASE_URL\"|" Package.swift
           sed -i '' -e "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|" Package.swift
         shell: bash
