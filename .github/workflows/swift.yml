@@ -94,9 +94,9 @@ jobs:
 
       - name: Update Package.swift
         run: |
-          ARTIFACT_URL="${{ steps.upload_artifact.outputs.artifact-url }}.zip"
+          RELEASE_URL="https://github.com/kiiskristo/KMPShared/releases/download/${{ github.ref }}/shared.xcframework.zip"
           CHECKSUM="${{ steps.checksum.outputs.checksum }}"
-          sed -i '' -e "s|url: \".*\"|url: \"$ARTIFACT_URL\"|" Package.swift
+          sed -i '' -e "s|url: \".*\"|url: \"$RELEASE_URL\"|" Package.swift
           sed -i '' -e "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|" Package.swift
         shell: bash
 
