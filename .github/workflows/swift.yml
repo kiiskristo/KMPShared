@@ -71,7 +71,7 @@ jobs:
 
       - name: Update Package.swift
         run: |
-          ARTIFACT_URL="${{ steps.upload_artifact.outputs.artifact-url }}"
+          ARTIFACT_URL="${{ steps.upload_artifact.outputs.artifact-url }}.zip"
           CHECKSUM="${{ steps.checksum.outputs.checksum }}"
           sed -i '' -e "s|url: \".*\"|url: \"$ARTIFACT_URL\"|" Package.swift
           sed -i '' -e "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|" Package.swift
